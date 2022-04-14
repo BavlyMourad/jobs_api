@@ -1,0 +1,21 @@
+{
+  "name": "restful-api-course",
+  "version": "1.0.0",
+  "description": "Course API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app",
+    "prod": "SET NODE_ENV=production & nodemon app.js"
+  },
+  "author": "Bavly Mourad",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.10",
+    "node-geocoder": "^4.0.0",
+    "slugify": "^1.6.5",
+    "validator": "^13.7.0"
+  }
+}
