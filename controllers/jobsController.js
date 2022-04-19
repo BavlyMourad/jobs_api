@@ -3,9 +3,11 @@
 const { findById, findByIdAndDelete } = require("../models/jobs")
 const Job = require("../models/jobs")
 const geoCoder = require("../utils/geocoder")
+const ErrorHandler = require("../utils/errorHandler")
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors")
 
 // Get all jobs -> /api/v1/jobs
-exports.getJobs = async (req, res, next) => {
+exports.getJobs = catchAsyncErrors(async (req, res, next) => {
   const jobs = await Job.find()
 
   res.status(200).json({
@@ -13,29 +15,26 @@ exports.getJobs = async (req, res, next) => {
     results: jobs.length,
     data: jobs,
   })
-}
+})
 
 // Search for sepecific job -> /api/v1/job/:id/:slug
-exports.getJob = async (req, res, next) => {
+exports.getJob = catchAsyncErrors(async (req, res, next) => {
   const job = await Job.find({
     $and: [{ _id: req.params.id }, { slug: req.params.slug }],
   })
 
   if (!job || job.length === 0) {
-    return res.status(404).json({
-      success: false,
-      message: "Job not found",
-    })
+    return next(new ErrorHandler("Job not found", 404))
   }
 
   res.status(200).json({
     success: true,
     data: job,
   })
-}
+})
 
 // Search for jobs in radius -> /api/v1/jobs/:zipcode/:distance
-exports.getJobsInRadius = async (req, res, next) => {
+exports.getJobsInRadius = catchAsyncErrors(async (req, res, next) => {
   const { zipcode, distance } = req.params
 
   // Getting latitude & longitude from geocoder with zipcode
@@ -58,10 +57,10 @@ exports.getJobsInRadius = async (req, res, next) => {
     results: jobs.length,
     data: jobs,
   })
-}
+})
 
 // Get job stats -> /api/v1/stats/:topic
-exports.getJobStats = async (req, res, next) => {
+exports.getJobStats = catchAsyncErrors(async (req, res, next) => {
   // go to mongo terminal and type use jobs then db.jobs.createIndex({title: 'text'}) or manually from mongodb compass
   const stats = await Job.aggregate([
     {
@@ -80,20 +79,19 @@ exports.getJobStats = async (req, res, next) => {
   ])
 
   if (stats.length === 0) {
-    return res.status(200).json({
-      success: false,
-      message: `no stats found for: ${req.params.topic}`,
-    })
+    return next(
+      new ErrorHandler(`no stats found for: ${req.params.topic}`, 404)
+    )
   }
 
   res.status(200).json({
     success: true,
     data: stats,
   })
-}
+})
 
 // Create a new job -> /api/v1/job/new
-exports.newJob = async (req, res, next) => {
+exports.newJob = catchAsyncErrors(async (req, res, next) => {
   const job = await Job.create(req.body)
 
   res.status(200).json({
@@ -101,17 +99,14 @@ exports.newJob = async (req, res, next) => {
     message: "Job created",
     data: job,
   })
-}
+})
 
 // Update a job => /api/v1/job/:id
-exports.updateJob = async (req, res, next) => {
+exports.updateJob = catchAsyncErrors(async (req, res, next) => {
   let job = await Job.findById(req.params.id) // let not const
 
   if (!job) {
-    return res.status(404).json({
-      success: false,
-      message: "Job not found",
-    })
+    return next(new ErrorHandler("Job not found", 404))
   }
 
   job = await Job.findByIdAndUpdate(req.params.id, req.body, {
@@ -123,17 +118,14 @@ exports.updateJob = async (req, res, next) => {
     success: true,
     message: "Job updated",
   })
-}
+})
 
 // Delete a job => /api/v1/job/:id
-exports.deleteJob = async (req, res, next) => {
+exports.deleteJob = catchAsyncErrors(async (req, res, next) => {
   let job = await Job.findById(req.params.id)
 
   if (!job) {
-    return res.status(404).json({
-      success: false,
-      message: "Job not found",
-    })
+    return next(new ErrorHandler("Job not found", 404))
   }
 
   job = await Job.findByIdAndDelete(req.params.id) // ALso there is Job.remove()
@@ -142,4 +134,4 @@ exports.deleteJob = async (req, res, next) => {
     success: true,
     message: "Job deleted",
   })
-}
+})
