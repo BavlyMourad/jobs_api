@@ -5,6 +5,8 @@ const validator = require("validator")
 const slugify = require("slugify")
 const geoCoder = require("../utils/geocoder")
 
+// https://www.positronx.io/mongoose-schema-types-validation-queries-tutorial-with-examples/
+
 const jobSchema = new mongoose.Schema({
   title: {
     type: String,
