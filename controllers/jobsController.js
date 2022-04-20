@@ -4,11 +4,23 @@ const { findById, findByIdAndDelete } = require("../models/jobs")
 const Job = require("../models/jobs")
 const geoCoder = require("../utils/geocoder")
 const ErrorHandler = require("../utils/errorHandler")
+const APIFilters = require("../utils/apiFilters")
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors")
 
-// Get all jobs -> /api/v1/jobs
+// catchAsyncErrors added after 10th file
+// apiFilters added after 11th file
+
+// Get jobs -> /api/v1/jobs
 exports.getJobs = catchAsyncErrors(async (req, res, next) => {
-  const jobs = await Job.find()
+  const apiFilters = new APIFilters(Job.find(), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .searchByQuery()
+    .pagination()
+
+  const jobs = await apiFilters.query
+  //const jobs = await Job.find()
 
   res.status(200).json({
     success: true,

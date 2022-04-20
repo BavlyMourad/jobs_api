@@ -16,7 +16,7 @@ module.exports = (err, req, res, next) => {
   }
 
   if (process.env.NODE_ENV === "production") {
-    let error = err
+    let error = { ...err }
     error.message = err.message
 
     // Handling Mongoose ObjectID Error
