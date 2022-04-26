@@ -2,7 +2,9 @@
 
 const express = require("express")
 const dotenv = require("dotenv")
+const cookieParser = require("cookie-parser")
 const jobsRoutes = require("./routes/jobs")
+const authRoutes = require("./routes/auth")
 const connectDatabase = require("./config/database")
 const errorMiddleware = require("./middlewares/errors")
 const ErrorHandler = require("./utils/errorHandler")
@@ -25,6 +27,9 @@ connectDatabase()
 // Setup body parser (After 6th file)
 app.use(express.json())
 
+// Setupd cookie parser (After 15th file)
+app.use(cookieParser())
+
 // // Creating middleware
 // const middleWare = (req, res, next) => {
 //   console.log("Hello from middleware")
@@ -35,8 +40,11 @@ app.use(express.json())
 // }
 // app.use(middleWare)
 
-// All routes (After 3rd file)
+// All job routes (After 3rd file)
 app.use("/api/v1", jobsRoutes)
+
+// All auth routes (After 14th file)
+app.use("/api/v1", authRoutes)
 
 // Handle unhandled routes, it must be below the main routes (After 9th file)
 app.all("*", (req, res, next) => {

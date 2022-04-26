@@ -1,0 +1,61 @@
+// 14th File
+
+const User = require("../models/users")
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors")
+const ErrorHandler = require("../utils/errorHandler")
+const sendToken = require("../utils/jwtToken")
+
+// Register a new user -> /api/v1/register
+exports.registerUser = catchAsyncErrors(async (req, res, next) => {
+  const { name, email, password, role } = req.body
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+    role,
+  })
+
+  sendToken(user, 200, res) // Instead of below code
+  //   // Create JWT Token
+  //   const token = user.getJwtToken()
+
+  //   res.status(200).json({
+  //     success: true,
+  //     message: "User is registered",
+  //     token,
+  //   })
+})
+
+// Login User -> /api/v1/login
+exports.loginUser = catchAsyncErrors(async (req, res, next) => {
+  const { email, password } = req.body
+
+  // Check if email and password is entered
+  if (!email || !password) {
+    return next(new ErrorHandler("Please enter email & password", 400))
+  }
+
+  // Finding user in database / .select method is used because in user schema password select is set to false
+  const user = await User.findOne({ email }).select("+password")
+
+  if (!user) {
+    return next(new ErrorHandler("Invalid email or password", 401))
+  }
+
+  // Check if password is correct
+  const isPasswordMatched = await user.comparePassword(password)
+
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("password 8alat", 401))
+  }
+
+  sendToken(user, 200, res) // Instead of below code
+  //   // Create JSON Web Token
+  //   const token = user.getJwtToken()
+
+  //   res.status(200).json({
+  //     success: true,
+  //     token,
+  //   })
+})
