@@ -106,6 +106,11 @@ const jobSchema = new mongoose.Schema({
     type: [Object], // ID, Resume reference
     select: false, // Cant display data to user
   },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+    required: true,
+  },
 })
 
 // Creating mongoose Middleware Job Slug before saving, used normal function so we can use this keyword

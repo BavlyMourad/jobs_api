@@ -13,7 +13,7 @@ const {
   deleteJob,
 } = require("../controllers/jobsController")
 
-const { isAuthenticatedUser } = require("../middlewares/auth")
+const { isAuthenticatedUser, authorizeRoles } = require("../middlewares/auth")
 
 // Route to all jobs
 router.route("/jobs").get(getJobs)
@@ -28,7 +28,9 @@ router.route("/jobs/:zipcode/:distance").get(getJobsInRadius)
 router.route("/stats/:topic").get(getJobStats)
 
 // Route to new job
-router.route("/job/new").post(isAuthenticatedUser, newJob)
+router
+  .route("/job/new")
+  .post(isAuthenticatedUser, authorizeRoles("employeer", "admin"), newJob)
 
 // Route to update & delete job, since they use same route we add delete on put
 router

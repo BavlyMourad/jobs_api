@@ -3,8 +3,16 @@
 const express = require("express")
 const dotenv = require("dotenv")
 const cookieParser = require("cookie-parser")
+const rateLimit = require("express-rate-limit")
+const helmet = require("helmet")
+const mongoSanitize = require("express-mongo-sanitize")
+const xssClean = require("xss-clean")
+const hpp = require("hpp")
+const cors = require("cors")
+
 const jobsRoutes = require("./routes/jobs")
 const authRoutes = require("./routes/auth")
+const userRoutes = require("./routes/user")
 const connectDatabase = require("./config/database")
 const errorMiddleware = require("./middlewares/errors")
 const ErrorHandler = require("./utils/errorHandler")
@@ -27,8 +35,31 @@ connectDatabase()
 // Setup body parser (After 6th file)
 app.use(express.json())
 
-// Setupd cookie parser (After 15th file)
+// Setup cookie parser (After 15th file)
 app.use(cookieParser())
+
+// Sanitize Data
+app.use(mongoSanitize())
+
+// Setup security headers
+app.use(helmet())
+
+// Prevent XSS attacks
+app.use(xssClean())
+
+// Prevent Paramter Pollution / you can whitelist parameters
+app.use(hpp())
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100,
+})
+
+app.use(limiter)
+
+// Setup CORS - Accessible by other domains
+app.use(cors())
 
 // // Creating middleware
 // const middleWare = (req, res, next) => {
@@ -45,6 +76,9 @@ app.use("/api/v1", jobsRoutes)
 
 // All auth routes (After 14th file)
 app.use("/api/v1", authRoutes)
+
+// All user routes (After 19th file)
+app.use("/api/v1", userRoutes)
 
 // Handle unhandled routes, it must be below the main routes (After 9th file)
 app.all("*", (req, res, next) => {
