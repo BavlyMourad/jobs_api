@@ -1,7 +1,7 @@
 {
-  "name": "restful-api-course",
+  "name": "jobs-api",
   "version": "1.0.0",
-  "description": "Course API",
+  "description": "This is a RESTful API built with Node.js, Express, and MongoDB for managing job-related data. It provides a framework for creating, updating, and retrieving job listings and related information.",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
